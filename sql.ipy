@@ -55,6 +55,15 @@ print("Connected")
 # Example:
 #%sql bioscai0@answers_PMDB SELECT count(*) FROM user
 
-myid = args.pmdb
-results = %sql SELECT * FROM model WHERE id = :myid
-print(results)
+myid = './pdbs/' + args.pmdb + '.pdb'
+#myid = './pdbs/PM' + args.pmdb.zfill(7) + '.pdb'
+results = %sql SELECT * FROM model WHERE `3d` LIKE :myid
+#results = %sql SELECT * FROM model WHERE id = :myid
+
+for row in results:
+    counter = 0
+    for value in row:
+        print(results.keys[counter], value)
+        counter += 1
+
+# results = %sql SELECT * FROM model WHERE id = :myid
