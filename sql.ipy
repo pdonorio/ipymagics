@@ -56,35 +56,31 @@ print("Connected")
 #%sql bioscai0@answers_PMDB SELECT count(*) FROM user
 
 def printres(results, save_keys=[]):
-    pass
+    variables = []
+    for row in results:
+        counter = 0
+        for value in row:
+            key = results.keys[counter]
+            counter += 1
+            for match in save_keys:
+                if key == match:
+                    variables.append(value)
+            print("%s: %s" % (key,value))
+    return variables
 
 #####################################
 myid = './pdbs/' + args.pmdb + '.pdb'
-#myid = './pdbs/PM' + args.pmdb.zfill(7) + '.pdb'
-
 results = %sql SELECT * FROM model WHERE `3d` LIKE :myid
-#results = %sql SELECT * FROM model WHERE id = :myid
-
-pmdb_id = None
-gid = None
-
-for row in results:
-    counter = 0
-    for value in row:
-        key = results.keys[counter]
-        counter += 1
-        if key == 'id':
-            pmdb_id = value
-        elif key == 'id_group':
-            gid = value
-        else:
-            print(key, value)
+print("*** MODEL")
+pmdb_id, gid = printres(results, ['id', 'id_group'])
 
 #####################################
 # Group info
 results = %sql SELECT * FROM user WHERE id_group = :gid
-print(results)
+print("*** AUTHOR")
+printres(results)
 
+print("\n\nREADY TO DELETE:")
 #####################################
 # Matching target
 results = %sql SELECT * FROM target_model WHERE id_model = :pmdb_id
