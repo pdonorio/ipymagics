@@ -1,4 +1,4 @@
-#!/usr/bin/env ipython2
+#!/usr/bin/env ipython2 --
 # -*- coding: utf-8 -*-
 
 """
@@ -13,6 +13,13 @@ from future.utils import iteritems
 CONFIG_FILE = 'conf.ini'
 SECTION = 'mysql'
 KEY = 'connection'
+
+#####################################
+## Parse parameters
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("pmdb")
+args = parser.parse_args()
 
 #####################################
 ## Configuration file
@@ -48,5 +55,6 @@ print("Connected")
 # Example:
 #%sql bioscai0@answers_PMDB SELECT count(*) FROM user
 
-results = %sql SELECT * FROM model WHERE id = '80321'
+myid = args.pmdb
+results = %sql SELECT * FROM model WHERE id = :myid
 print(results)
