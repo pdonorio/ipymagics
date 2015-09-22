@@ -55,15 +55,47 @@ print("Connected")
 # Example:
 #%sql bioscai0@answers_PMDB SELECT count(*) FROM user
 
+def printres(results, save_keys=[]):
+    pass
+
+#####################################
 myid = './pdbs/' + args.pmdb + '.pdb'
 #myid = './pdbs/PM' + args.pmdb.zfill(7) + '.pdb'
+
 results = %sql SELECT * FROM model WHERE `3d` LIKE :myid
 #results = %sql SELECT * FROM model WHERE id = :myid
+
+pmdb_id = None
+gid = None
 
 for row in results:
     counter = 0
     for value in row:
-        print(results.keys[counter], value)
+        key = results.keys[counter]
         counter += 1
+        if key == 'id':
+            pmdb_id = value
+        elif key == 'id_group':
+            gid = value
+        else:
+            print(key, value)
 
-# results = %sql SELECT * FROM model WHERE id = :myid
+#####################################
+# Group info
+results = %sql SELECT * FROM user WHERE id_group = :gid
+print(results)
+
+#####################################
+# Matching target
+results = %sql SELECT * FROM target_model WHERE id_model = :pmdb_id
+print(results)
+# Delete ?
+
+#####################################
+# Matching chains
+results = %sql SELECT * FROM map_model WHERE id_model = :pmdb_id
+print(results)
+# Delete ?
+
+#####################################
+# Delete from Main Model Table
