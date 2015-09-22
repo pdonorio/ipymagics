@@ -1,0 +1,52 @@
+#!/usr/bin/env ipython2
+# -*- coding: utf-8 -*-
+
+"""
+Using the ipython sql extension.
+Trying some code that works with both python2 and python3
+
+It requires: pip, ipython, ipython-sql, future
+"""
+from future.utils import iteritems
+
+#####################################
+CONFIG_FILE = 'conf.ini'
+SECTION = 'mysql'
+KEY = 'connection'
+
+#####################################
+## Configuration file
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+# Make sure configuration is case sensitive
+config = configparser.RawConfigParser()
+config.optionxform = str
+# read
+config.read(CONFIG_FILE)
+if SECTION not in config.sections():
+    raise Exception("No configuration found for SQL connection")
+
+# Get sconnect via config read?
+sconnect = 'driver://user:passw@server:port/dbname'
+for key, value in config.items(SECTION):
+    if key == KEY:
+        sconnect = value
+
+#####################################
+## SQL connection
+%load_ext sql
+%sql $sconnect
+# Warning: you may reuse with %sql bioscai0@answers_PMDB
+# or just with nothing if only one connection is already available
+print("Connected")
+
+#####################################
+## Do some database work
+
+# Example:
+#%sql bioscai0@answers_PMDB SELECT count(*) FROM user
+
+results = %sql SELECT * FROM model WHERE id = '80321'
+print(results)
