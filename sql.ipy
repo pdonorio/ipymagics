@@ -3,6 +3,7 @@
 
 """
 Using the ipython sql extension.
+https://github.com/catherinedevlin/ipython-sql
 Trying some code that works with both python2 and python3
 
 It requires: pip, ipython, ipython-sql, future
@@ -19,7 +20,10 @@ KEY = 'connection'
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("pmdb")
+parser.add_argument('remove', nargs='?', const=0, type=int, default=0)
 args = parser.parse_args()
+print("REMOVE %s" % args.remove)
+delete = args.remove
 
 #####################################
 ## Configuration file
@@ -55,8 +59,10 @@ print("Connected")
 # Example:
 #%sql bioscai0@answers_PMDB SELECT count(*) FROM user
 
-def printres(results, save_keys=[]):
+def printres(results, save_keys=[], disable_print=False):
     variables = []
+    if len(results) < 1:
+        raise Exception("No results found for this code")
     for row in results:
         counter = 0
         for value in row:
@@ -65,7 +71,8 @@ def printres(results, save_keys=[]):
             for match in save_keys:
                 if key == match:
                     variables.append(value)
-            print("%s: %s" % (key,value))
+            if not disable_print:
+                print("%s: %s" % (key,value))
     return variables
 
 #####################################
@@ -83,15 +90,27 @@ printres(results)
 print("\n\nREADY TO DELETE:")
 #####################################
 # Matching target
-results = %sql SELECT * FROM target_model WHERE id_model = :pmdb_id
-print(results)
 # Delete ?
+if delete:
+    %sql DELETE FROM target_model WHERE id_model = :pmdb_id
+    print("Deleted Target")
+else:
+    results = %sql SELECT * FROM target_model WHERE id_model = :pmdb_id
+    print(results)
 
 #####################################
 # Matching chains
-results = %sql SELECT * FROM map_model WHERE id_model = :pmdb_id
-print(results)
-# Delete ?
+if delete:
+    %sql DELETE FROM map_model WHERE id_model = :pmdb_id
+    print("Deleted Maps")
+else:
+    results = %sql SELECT * FROM map_model WHERE id_model = :pmdb_id
+    print(results)
 
 #####################################
 # Delete from Main Model Table
+if delete:
+    %sql DELETE FROM model WHERE id = :pmdb_id
+    print("Deleted Model")
+else:
+    print("Not REMOVED!")
