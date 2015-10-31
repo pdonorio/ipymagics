@@ -1,0 +1,26 @@
+#!/usr/bin/env ipython3 --
+# -*- coding: utf-8 -*-
+
+"""
+NR Experiments for quick download.
+Note: it needs 'axel' to work:
+http://axel.alioth.debian.org/
+"""
+
+import os
+from plumbum.cmd import axel
+
+FTP_URL = "ftp://ftp.ncbi.nlm.nih.gov/blast/db"
+ELEMENTS = 40
+
+for i in range(0, ELEMENTS+1):
+    count = str(i).zfill(2)
+    filename = "nr." + count + ".tar.gz"
+    if os.path.exists(filename):
+        continue
+    url = FTP_URL + "/" + filename
+    args = ['-a', '-n', '12', url]
+    print("Fast download for %s/%s" % (count, ELEMENTS))
+    axel(args)
+    print(url)
+    #break
