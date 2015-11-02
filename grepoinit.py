@@ -15,7 +15,9 @@ import argparse
 import shutil
 # import sys
 from plumbum import local
-from plumbum.cmd import git, putup, mkdocs, ls
+from plumbum.cmd import \
+    git, putup, mkdocs, \
+    mv, rm, ls
 
 description = "Automatic python3 git project creation"
 
@@ -53,16 +55,22 @@ path = os.path.join(os.getcwd(), args.repo)
 local.cwd.chdir(path)
 
 # Remove useless
-removefiles = ['README.rst']
-removedirs = ['docs']
-for f in removefiles:
-    os.remove(os.path.join(path, f))
-for d in removedirs:
-    shutil.rmtree(os.path.join(path, d))
+rm['-r', 'README.rst', 'docs']()
 
 #########################
 # Init new git repo
 git["init"]()
+var = 'tmp'
+
+# Make the docs
+mkdocs['new', var]()
+mv[var+'/docs', var+'/mkdocs.yml', '.']()
+rm['-r', var]()
+
+#########################
+# Requirements?
+with open('requirements.txt', 'w') as f:
+    f.write('Flask')
 
 #########################
 print(ls['-a']())
