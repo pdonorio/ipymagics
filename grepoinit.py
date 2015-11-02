@@ -15,16 +15,16 @@ import argparse
 # from plumbum.cmd import git, putup, mkdocs
 
 #########################
-parser = argparse.ArgumentParser(
-    description='Template for Github python3 repo')
-parser.add_argument('repo', type=str, metavar='REPOSITORY_NAME',
-                    help='Github repository name to create')
-parser.add_argument('user', type=str, metavar='GITHUB_USERNAME',
-                    help='Github existing account')
-parser.add_argument('--sum', dest='accumulate', action='store_const')
+arg = argparse.ArgumentParser(description='Template for Github python3 repo')
+arg.add_argument('repo', type=str, metavar='REPOSITORY_NAME',
+                 help='Github repository name to create')
+arg.add_argument('user', type=str, metavar='GITHUB_USERNAME',
+                 help='Github existing account')
+arg.add_argument('--force', dest='forced',
+                 action='store_const', const=True, default=False)
 
 #########################
-args = parser.parse_args()
+args = arg.parse_args()
 print("Arguments", args)
 
 #########################
