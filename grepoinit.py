@@ -6,18 +6,19 @@ grepoinit: GitHub Repository INIT;
 to start your next python3 project.
 
 Note: it requires libraries
-$ pip3 install --upgrade plumbum mkdocs pyscaffold
+$ pip3 install --upgrade plumbum mkdocs pyscaffold requests
 """
 
 #########################
 import os
 import argparse
 import shutil
+import requests
 # import sys
 from plumbum import local
 from plumbum.cmd import \
     git, putup, mkdocs, \
-    mv, rm, ls
+    mv, rm  # , ls
 
 description = "Automatic python3 git project creation"
 
@@ -66,6 +67,7 @@ var = 'tmp'
 mkdocs['new', var]()
 mv[var+'/docs', var+'/mkdocs.yml', '.']()
 rm['-r', var]()
+# print(ls['-a']())
 
 #########################
 # Requirements?
@@ -73,7 +75,23 @@ with open('requirements.txt', 'w') as f:
     f.write('Flask')
 
 #########################
-print(ls['-a']())
+with open('README.md', 'w') as f:
+    f.write('#' + args.repo + '\n' + description)
+git['add', '*', '.*']()
+out = git['commit', '-m', '"First commit"']()
+print(out)
+
+# #########################
+# gapi = "https://api.github.com"
+# params = '{ "name": "'+args.repo+'", "description": "'+description+'", ' + \
+# '"homepage": "https://github.com", "private": false,
+# "has_issues": true, ' + \
+# '"has_wiki": true, "has_downloads": true }'
+# params = '{ "name": "'+args.repo+'"}'
+# access = args.user + ':'
+# curl['-u', "\"$guser:$gpass\" $gapi/user/repos -d $params
+
+r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
 
 #########################
 print("Done")
