@@ -12,6 +12,7 @@ $ pip3 install --upgrade plumbum mkdocs pyscaffold requests
 #########################
 import os
 import argparse
+import getpass
 import shutil
 import requests
 # import sys
@@ -91,7 +92,15 @@ print(out)
 # access = args.user + ':'
 # curl['-u', "\"$guser:$gpass\" $gapi/user/repos -d $params
 
-r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
+print("Trying to access as '" + args.user + "' github account\n")
+password = getpass.getpass()
+r = requests.get('https://api.github.com/user', auth=(args.user, password))
+out = r.json()
+if 'message' in out and out['message'] == 'Bad credentials':
+    print(out['message'])
+    exit(1)
+
+print(out)
 
 #########################
 print("Done")
