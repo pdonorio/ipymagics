@@ -28,7 +28,9 @@ args = arg.parse_args()
 print("Arguments", args)
 
 #########################
-if os.path.exists(args.repo):
+if not args.forced and os.path.exists(args.repo):
     print("Project '%s' already exists..." % args.repo)
     print("Add --force to remove it")
     exit(1)
+
+print("READY")
