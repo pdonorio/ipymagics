@@ -79,28 +79,34 @@ with open('requirements.txt', 'w') as f:
 with open('README.md', 'w') as f:
     f.write('#' + args.repo + '\n' + description)
 git['add', '*', '.*']()
-out = git['commit', '-m', '"First commit"']()
+out = git['commit', '-m', '"Initial commit"']()
 print(out)
 
-# #########################
-# gapi = "https://api.github.com"
-# params = '{ "name": "'+args.repo+'", "description": "'+description+'", ' + \
-# '"homepage": "https://github.com", "private": false,
-# "has_issues": true, ' + \
-# '"has_wiki": true, "has_downloads": true }'
-# params = '{ "name": "'+args.repo+'"}'
-# access = args.user + ':'
-# curl['-u', "\"$guser:$gpass\" $gapi/user/repos -d $params
+#########################
+gapi_epoint = 'https://api.github.com/user/repos'
+params = {"name": args.repo, "description": description,
+          "homepage": "https://github.com", "private": False,
+          "has_issues": True, "has_wiki": True, "has_downloads": True}
 
 print("Trying to access as '" + args.user + "' github account\n")
 password = getpass.getpass()
-r = requests.get('https://api.github.com/user', auth=(args.user, password))
+
+try:
+    r = requests.get(gapi_epoint, auth=(args.user, password), params=params)
+except requests.exceptions.ConnectionError as e:
+    print("Internet connection not available")
+    exit(1)
+
 out = r.json()
 if 'message' in out and out['message'] == 'Bad credentials':
     print(out['message'])
     exit(1)
 
+##############################
 print(out)
+repourl = out.url
+git['remote', 'add', 'origin', repourl]()
+git['remote', '-v']
 
 #########################
 print("Done")
