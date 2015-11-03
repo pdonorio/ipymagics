@@ -36,7 +36,7 @@ arg.add_argument("--force", action="store_true",
 
 #########################
 args = arg.parse_args()
-print("Arguments", args)
+# print("Arguments", args)  # Debug
 
 #########################
 # Existing directory
@@ -92,21 +92,27 @@ print("Trying to access as '" + args.user + "' github account\n")
 password = getpass.getpass()
 
 try:
-    r = requests.get(gapi_epoint, auth=(args.user, password), params=params)
+    r = requests.post(gapi_epoint, auth=(args.user, password), json=params)
 except requests.exceptions.ConnectionError as e:
     print("Internet connection not available")
     exit(1)
 
 out = r.json()
-if 'message' in out and out['message'] == 'Bad credentials':
+if 'message' in out:
+    # if out['message'] == 'Bad credentials':
     print(out['message'])
     exit(1)
 
 ##############################
-print(out)
-repourl = out.url
-git['remote', 'add', 'origin', repourl]()
-git['remote', '-v']
+if 'clone_url' in out:
+    git['remote', 'add', 'origin', out['clone_url']]()
+    out = git['remote', '-v']()
+    print(out)
+    print("Success. Ready to push:")
+    out = git['push', 'origin', 'master']()
+    print(out)
+else:
+    print("Something went bed with API calling. Cannot find repo url.")
 
 #########################
 print("Done")
