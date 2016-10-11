@@ -1,14 +1,24 @@
-#!/usr/bin/env ipython2 --
+#!/usr/bin/env ipython3 --
 # -*- coding: utf-8 -*-
 
 """
+
 Using the ipython sql extension.
 https://github.com/catherinedevlin/ipython-sql
-Trying some code that works with both python2 and python3
 
-It requires: pip, ipython, ipython-sql, future
+Requirements:
+    pip3 install --upgrade pip ipython pymysql ipython-sql future
+
 """
+
 from future.utils import iteritems
+import argparse
+
+try:
+    import pymysql
+    pymysql.install_as_MySQLdb()
+except ImportError:
+    pass
 
 #####################################
 CONFIG_FILE = 'conf.ini'
@@ -16,8 +26,7 @@ SECTION = 'mysql'
 KEY = 'connection'
 
 #####################################
-## Parse parameters
-import argparse
+# Parse parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("pmdb")
 parser.add_argument('remove', nargs='?', const=0, type=int, default=0)
@@ -26,15 +35,15 @@ print("REMOVE %s" % args.remove)
 delete = args.remove
 
 #####################################
-## Configuration file
+# Configuration file
 try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
-# Make sure configuration is case sensitive
+# Make sure configuration is case sensitive
 config = configparser.RawConfigParser()
 config.optionxform = str
-# read
+# Read
 config.read(CONFIG_FILE)
 if SECTION not in config.sections():
     raise Exception("No configuration found for SQL connection")
@@ -46,18 +55,18 @@ for key, value in config.items(SECTION):
         sconnect = value
 
 #####################################
-## SQL connection
+# SQL connection
 %load_ext sql
 %sql $sconnect
 # Warning: you may reuse with %sql bioscai0@answers_PMDB
-# or just with nothing if only one connection is already available
+# or just with nothing if only one connection is already available
 print("Connected")
 
-#####################################
-## Do some database work
 
-# Example:
-#%sql bioscai0@answers_PMDB SELECT count(*) FROM user
+#####################################
+# Do some database work
+
+# Example: %sql bioscai0@answers_PMDB SELECT count(*) FROM user
 
 def printres(results, save_keys=[], disable_print=False):
     variables = []
@@ -72,8 +81,9 @@ def printres(results, save_keys=[], disable_print=False):
                 if key == match:
                     variables.append(value)
             if not disable_print:
-                print("%s: %s" % (key,value))
+                print("%s: %s" % (key, value))
     return variables
+
 
 #####################################
 myid = './pdbs/' + args.pmdb + '.pdb'
@@ -82,14 +92,14 @@ print("*** MODEL")
 pmdb_id, gid = printres(results, ['id', 'id_group'])
 
 #####################################
-# Group info
+# Group info
 results = %sql SELECT * FROM user WHERE id_group = :gid
 print("*** AUTHOR")
 printres(results)
 
 print("\n\nREADY TO DELETE:")
 #####################################
-# Matching target
+# Matching target
 # Delete ?
 if delete:
     %sql DELETE FROM target_model WHERE id_model = :pmdb_id
@@ -99,7 +109,7 @@ else:
     print(results)
 
 #####################################
-# Matching chains
+# Matching chains
 if delete:
     %sql DELETE FROM map_model WHERE id_model = :pmdb_id
     print("Deleted Maps")
